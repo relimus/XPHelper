@@ -1,5 +1,6 @@
 package top.sacz.xphelper.base;
 
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
@@ -9,7 +10,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import de.robv.android.xposed.XposedHelpers;
 import top.sacz.xphelper.exception.ReflectException;
 
 /**
@@ -102,7 +102,7 @@ public abstract class BaseFinder<T extends Member> {
         this.isFind = true;
         //设置可访问
         for (T member : result) {
-            XposedHelpers.callMethod(member, "setAccessible", true);
+            ((AccessibleObject) member).setAccessible(true);
         }
 
         return this;

@@ -1,11 +1,9 @@
 package top.sacz.hook
 
 import android.util.Log
-import de.robv.android.xposed.XposedBridge
 import top.sacz.hook.ext.showToast
 import top.sacz.xphelper.dexkit.MethodFinder
 import top.sacz.xphelper.ext.toClass
-import top.sacz.xphelper.reflect.ClassUtils
 import java.lang.reflect.Method
 
 class DexkitTest {
@@ -14,10 +12,10 @@ class DexkitTest {
     }
 
     private fun startFindMethod() {
-        XposedBridge.log("[Xphelper]开始查找")
+        InjectHook.xposed.log(Log.INFO, InjectHook.TAG, "[Xphelper]开始查找")
         val method = getHasInfo()
         method.toString().showToast()
-        XposedBridge.log("[Xphelper]$method")
+        InjectHook.xposed.log(Log.INFO, InjectHook.TAG, "[Xphelper]$method")
     }
     private fun getHasInfo() : Method? {
         val aioItemClass = "com.tencent.mobileqq.aio.msg.AIOMsgItem".toClass()

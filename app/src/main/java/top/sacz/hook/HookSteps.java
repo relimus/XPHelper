@@ -8,7 +8,7 @@ import com.kongzue.dialogxmaterialyou.style.MaterialYouStyle;
 
 import java.lang.reflect.Method;
 
-import de.robv.android.xposed.callbacks.XC_LoadPackage;
+import io.github.libxposed.api.XposedModuleInterface;
 
 public class HookSteps {
 
@@ -18,10 +18,10 @@ public class HookSteps {
      * @param loadPackageParam
      * @return
      */
-    public Method getApplicationCreateMethod(XC_LoadPackage.LoadPackageParam loadPackageParam) {
+    public Method getApplicationCreateMethod(XposedModuleInterface.PackageReadyParam loadPackageParam) {
         try {
-            String applicationName = loadPackageParam.appInfo.name;
-            Class<?> clz = loadPackageParam.classLoader.loadClass(applicationName);
+            String applicationName = loadPackageParam.getApplicationInfo().name;
+            Class<?> clz = loadPackageParam.getClassLoader().loadClass(applicationName);
             try {
                 return clz.getDeclaredMethod("attachBaseContext", Context.class);
             } catch (Throwable i) {

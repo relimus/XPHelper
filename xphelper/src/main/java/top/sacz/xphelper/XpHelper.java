@@ -3,7 +3,6 @@ package top.sacz.xphelper;
 import android.annotation.SuppressLint;
 import android.content.Context;
 
-import de.robv.android.xposed.IXposedHookZygoteInit;
 import top.sacz.xphelper.activity.ActivityProxyManager;
 import top.sacz.xphelper.dexkit.cache.DexKitCache;
 import top.sacz.xphelper.reflect.ClassUtils;
@@ -26,8 +25,8 @@ public class XpHelper {
         DexKitCache.checkCacheExpired(application);
     }
 
-    public static void initZygote(IXposedHookZygoteInit.StartupParam startupParam) {
-        moduleApkPath = startupParam.modulePath;
+    public static void initModulePath(String moduleApkPath) {
+        XpHelper.moduleApkPath = moduleApkPath;
     }
 
     /**

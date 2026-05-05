@@ -25,7 +25,7 @@ androidx-compose-material3 = { group = "androidx.compose.material3", name = "mat
 androidx-compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended" }
 
 #xposed api
-xposed-api = { module = "de.robv.android.xposed:api", version = "82" }
+xposed-api = { module = "io.github.libxposed:api", version = "101.0.1" }
 dexkit = { module = "org.luckypray:dexkit", version = "2.2.0" }
 
 fastkv = { group = 'io.github.billywei01', name = 'fastkv', version.ref = "fastkv" }
