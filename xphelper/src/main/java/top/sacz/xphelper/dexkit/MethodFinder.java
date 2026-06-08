@@ -3,6 +3,8 @@ package top.sacz.xphelper.dexkit;
 import org.jetbrains.annotations.NotNull;
 import org.luckypray.dexkit.query.FindMethod;
 import org.luckypray.dexkit.query.enums.MatchType;
+import org.luckypray.dexkit.query.matchers.ClassMatcher;
+import org.luckypray.dexkit.query.matchers.FieldsMatcher;
 import org.luckypray.dexkit.query.matchers.MethodMatcher;
 import org.luckypray.dexkit.result.MethodData;
 import org.luckypray.dexkit.result.MethodDataList;
@@ -21,6 +23,9 @@ import top.sacz.xphelper.reflect.ClassUtils;
 public class MethodFinder extends BaseDexQuery {
 
     private Class<?> declaredClass;//方法声明类
+    private final List<String> usedFieldTypes = new ArrayList<>();//方法声明类包含的字段类型名列表
+    private final List<String> usedFieldNames = new ArrayList<>();//方法声明类包含的字段名称列表
+    private int fieldCount = -1;//方法声明类字段数量
     private final List<Class<?>> parameters = new ArrayList<>();//方法的参数列表
     private String methodName;//方法名称
     private Class<?> returnType;//方法的返回值类型
@@ -94,6 +99,52 @@ public class MethodFinder extends BaseDexQuery {
         for (Field field : fields) {
             usedFields.add(FieldFinder.from(field));
         }
+        return this;
+    }
+
+    /**
+     * 设置方法声明类中包含的字段类型列表
+     *
+     * @param fieldTypes
+     * @return
+     */
+    public MethodFinder usedFieldTypes(Class<?>... fieldTypes) {
+        for (Class<?> fieldType : fieldTypes) {
+            this.usedFieldTypes.add(fieldType.getName());
+        }
+        return this;
+    }
+
+    /**
+     * 设置方法声明类中包含的字段类型名列表
+     *
+     * @param fieldTypeNames
+     * @return
+     */
+    public MethodFinder usedFieldTypes(String... fieldTypeNames) {
+        this.usedFieldTypes.addAll(Arrays.asList(fieldTypeNames));
+        return this;
+    }
+
+    /**
+     * 设置方法声明类中包含的字段名称列表
+     *
+     * @param fieldNames
+     * @return
+     */
+    public MethodFinder usedFieldNames(String... fieldNames) {
+        this.usedFieldNames.addAll(Arrays.asList(fieldNames));
+        return this;
+    }
+
+    /**
+     * 设置方法声明类中的字段数量
+     *
+     * @param count
+     * @return
+     */
+    public MethodFinder fieldCount(int count) {
+        this.fieldCount = count;
         return this;
     }
 
@@ -251,8 +302,26 @@ public class MethodFinder extends BaseDexQuery {
      */
     public MethodMatcher buildMethodMatcher() {
         MethodMatcher methodMatcher = MethodMatcher.create();
-        if (declaredClass != null) {
+        if (declaredClass != null && !hasDeclaredClassFieldsMatcher()) {
             methodMatcher.declaredClass(declaredClass);
+        }
+        if (hasDeclaredClassFieldsMatcher()) {
+            ClassMatcher classMatcher = ClassMatcher.create();
+            FieldsMatcher fieldsMatcher = FieldsMatcher.create();
+            if (declaredClass != null) {
+                classMatcher.className(declaredClass.getName());
+            }
+            for (String fieldTypeName : usedFieldTypes) {
+                fieldsMatcher.addForType(fieldTypeName);
+            }
+            for (String fieldName : usedFieldNames) {
+                fieldsMatcher.addForName(fieldName);
+            }
+            if (fieldCount != -1) {
+                fieldsMatcher.count(fieldCount);
+            }
+            classMatcher.fields(fieldsMatcher);
+            methodMatcher.declaredClass(classMatcher);
         }
         if (methodName != null && !methodName.isEmpty()) {
             methodMatcher.name(methodName);
@@ -296,6 +365,10 @@ public class MethodFinder extends BaseDexQuery {
             methodMatcher.modifiers(modifiers, matchType);
         }
         return methodMatcher;
+    }
+
+    private boolean hasDeclaredClassFieldsMatcher() {
+        return !usedFieldTypes.isEmpty() || !usedFieldNames.isEmpty() || fieldCount != -1;
     }
 
     /**
@@ -429,6 +502,15 @@ public class MethodFinder extends BaseDexQuery {
         }
         if (!parameters.isEmpty()) {
             builder.append((parameters));
+        }
+        if (!usedFieldTypes.isEmpty()) {
+            builder.append((usedFieldTypes));
+        }
+        if (!usedFieldNames.isEmpty()) {
+            builder.append((usedFieldNames));
+        }
+        if (fieldCount != -1) {
+            builder.append(fieldCount);
         }
         if (!invokeMethods.isEmpty()) {
             builder.append((invokeMethods));
